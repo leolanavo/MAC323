@@ -1,74 +1,11 @@
-/******************************************************************************
- *  Compilação:  javac -Xlint ST.java
- *  Execução:    java -ea ST filename
- *  Dependências: 
- *
- *  Programa lê o arquivo dado como argumento e cria um dicionário (= tabela de 
- *  símbolos) em que as chaves são as palavras (String) no arquivo e o valor 
- *  associado a cada chave é o número de ocorrências da palavra no arquivo (int).
- * 
- *  O dicionário deve ser implementado através de um array de strings para as
- *  chaves e um array de inteiros para os valores. Implemente apenas busca
- *  remoção e inserção SEQUÊNCIAS, tudo a là MAC0110.
- * 
- *  meu_prompt > more ./st-testes/teste2.txt 
- *  Como é bom estudar MAC0323!
- *  Como é bom estudar MAC0323!
- *  meu_prompt > java -ea ST ./st-testes/teste2.txt 
- *  Vejamos a ST1 inicialmente vazia: {}
- *  Vejamos a ST1 com 1 par key-val: {'aaa': 1}
- *  Vejamos a ST1 com 4 pares key-val: {'aaa': 1 , 'bbb': 3 , 'ccc': 1 , 'dd': 1}
- *  Vejamos a ST1 com 3 pares key-val: {'aaa': 1 , 'ccc': 1 , 'dd': 1}
- *  Vejamos a ST1 com 2 pares key-val: {'ccc': 1 , 'dd': 1}
- *  Vejamos a ST1 com 1 par key-val: {'dd': 1}
- *  ST1 deve estar vazia novamente: {}
- *  Criando a ST2 com as palavras do arquivo './st-testes/teste2.txt' ...
- *  ST2 criada em 0.001 segundos
- *  ST2 contém 5 pares key-val
- *  Início da consulta interativa. Tecle ctrl+D para sair
- *  >>> show
- *  {'Como': 2 , 'é': 2 , 'bom': 2 , 'estudar': 2 , 'MAC0323': 2}
- *  >>> max
- *  Como
- *  >>> é
- *  2
- *  >>> bom
- *  2
- *  >>> xxx
- *  -1
- *  >>> mac0323
- *  -1
- *  >>> MAC0323
- *  2
- *
- ******************************************************************************/
-
-// Input. This class provides methods for reading strings and numbers from standard input,
-// file input, URLs, and sockets.
-// https://www.ime.usp.br/~pf/sedgewick-wayne/stdlib/documentation/index.html
-// http://algs4.cs.princeton.edu/code/javadoc/edu/princeton/cs/algs4/In.html
-import edu.princeton.cs.algs4.In; // arquivo
-
-// The StdIn class provides static methods for reading strings and numbers from standard input.
-// https://www.ime.usp.br/~pf/sedgewick-wayne/stdlib/documentation/index.html
-// http://algs4.cs.princeton.edu/code/javadoc/edu/princeton/cs/algs4/StdIn.html
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdIn; 
-
-// This class provides methods for printing strings and numbers to standard output.
-// https://www.ime.usp.br/~pf/sedgewick-wayne/stdlib/documentation/index.html
-// http://algs4.cs.princeton.edu/code/javadoc/edu/princeton/cs/algs4/StdOut.html
 import edu.princeton.cs.algs4.StdOut; 
-
-// Stopwatch. This class is a data type for measuring the running time (wall clock) of a program.
-// https://www.ime.usp.br/~pf/sedgewick-wayne/algs4/documentation/index.html
-import edu.princeton.cs.algs4.Stopwatch; // arquivo
-
-// http://codereview.stackexchange.com/questions/48109/simple-example-of-an-iterable-and-an-iterator-in-java
-
+import edu.princeton.cs.algs4.Stopwatch;
 
 public class ST {
     
-    // cria um dicionário vazio
+    // Create an empty symbol table
     public ST() {
     }
 
@@ -128,14 +65,14 @@ public class ST {
     }
 
     // Returns a string representing the symbol table
-    // Este string é usado quando utilizamos StdOut.print*() para exibir a tabela
+    // This string is used when we use StdOut.print*() to show the table
     // Veja como um cliente utiliza este método no main()
     public String toString() {
         // escreva seu método toString() aqui
     }
 
 
-    // move the symbol table to one of size k
+    // Move the symbol table to one of size k
     private void resize(int k) {
         // escreva seu método resize() aqui
     }
