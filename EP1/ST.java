@@ -52,9 +52,9 @@ public class ST {
         if (key == null)
             throw new java.lang.NullPointerException("ST.delete(): key is null");
 
-        int i = findPos(key);
+        int i;
 
-        for (int i = findPos(key); i < length - 1 && words[i] != null; i++) {
+        for (i = findPos(key); i < length - 1 && words[i] != null; i++) {
             words[i] = words[i + 1];
             freq[i] = freq[i + 1];
         }
@@ -82,7 +82,7 @@ public class ST {
     // Returns the number of key-value pairs in this symbol table
     public int size() {
         int i;
-        for (int i = 0; i < length && words[i] != null; i++);
+        for (i = 0; i < length && words[i] != null; i++);
         return i;
     }
 
@@ -96,17 +96,29 @@ public class ST {
     // Returns the largest (= maior frequência) key in the symbol table
     // Throws java.util.NoSuchElementException - if the symbol table is empty
     public String max() {
-        int i, max;
-        for (i = 0, max = freq[0]; i < length; i++)
-            if (max < freq[i]) max = freq[i];
-        return max;
+        int i, max, index;
+
+        for (i = index = 0, max = freq[0]; i < length; i++)
+            if (max < freq[i]) {
+                max = freq[i];
+                index = i;
+            }   
+
+        return words[index];
     }
 
     // Returns a string representing the symbol table
     // This string is used when we use StdOut.print*() to show the table
-    // Veja como um cliente utiliza este método no main()
     public String toString() {
-        // escreva seu método toString() aqui
+        int i;
+        String str = "{";
+
+        for (i = 0; i < length - 1 && words[i + 1] != null; i++)
+            str += "'" + words[i] + "': " + freq[i] + " , ";
+
+        str += "'" + words[i] + "': " + freq[i] + "}";
+
+        return str;
     }
 
 
@@ -124,15 +136,15 @@ public class ST {
         freq = tmpint;
     }
 
+    // Recieves a string and search for it in the symbol table.
+    // Returns the position that the key occupies in the table or
+    // the first free position.
     private int findPos(String key) {
         int i;
         for (i = 0; i < length && !(key.equals(words[i])) && words[i] != null; i++);
         return i;
     }
 
-    //-----------------------------------------------------------------
-    // Exemplo de unit test para a ST
-    // Alterem à vontade, pois este método não será corrigido.
     public static void main(String[] args) {
         String PROMPT  = ">>> ";
         // neste unit test show, keys, size e max são palavras reservadas
@@ -142,9 +154,7 @@ public class ST {
         String MAX     = "max";  // mostre chave com maiosr valor
         String s;
         
-        // Initializes an input stream from a filename or web page name.
         In in = new In(args[0]);
-        // criamos duasST
         ST st1 = new ST();
         ST st2 = new ST();
 
@@ -235,20 +245,19 @@ public class ST {
         // consultas à ST criada
         while (!StdIn.isEmpty()) {
             s = StdIn.readString();
-            if (s.equals(SHOW)) {
+            if (s.equals(SHOW))
                 StdOut.println(st2);
-            }
-            else if (s.equals(SIZE)) {
+
+            else if (s.equals(SIZE))
                 StdOut.println(st2.size());
-            }
-            else if (s.equals(MAX)) {
+
+            else if (s.equals(MAX))
                 StdOut.println("'" + st2.max() + "'");
-            }
-            else if (s.equals(KEYS)) {
-                 for (String key: st2.keys()) {
+
+            else if (s.equals(KEYS))
+                 for (String key: st2.keys())
                     StdOut.println(key);
-                }
-            }
+
             else {
                 // consulte o número de ocorrências de s no arquivo
                 StdOut.println(st2.get(s));
