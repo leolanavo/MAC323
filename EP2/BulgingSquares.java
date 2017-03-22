@@ -39,17 +39,13 @@ public class BulgingSquares {
     public BulgingSquares () {};
 
     public void plotSquare (double X, double Y, double radius, boolean color) {
-        if (color) {
-            StdDraw.filledSquare(X, Y, radius);
-            System.out.println("Preto");
-        }
-        else
-            StdDraw.square(X, Y, radius);
+        if (color) StdDraw.setPenColor(StdDraw.BLACK);
+        else StdDraw.setPenColor(StdDraw.WHITE);
+        StdDraw.filledSquare(X, Y, radius);
     }
 
     
     public void plotIlusion (double X, double Y, boolean color) {
-        System.out.println("Ilusion");
         switch (table[(int)(Y - BIGOFF)/10][(int)(X - BIGOFF)/10]) {
             case 1:
                 plotSquare(X + SMALLOFF, Y - SMALLOFF, RADIUS_MIN, !color);
