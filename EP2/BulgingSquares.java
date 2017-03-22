@@ -14,7 +14,7 @@ public class BulgingSquares {
     private static final double RADIUS_MIN = 1.5;
     private static final double DIAM_MIN   = 2*RADIUS_MIN;
     private static double BIGOFF = XMIN + RADIUS_MAX;
-    private static double SMALLOFF =RADIUS_MAX - RADIUS_MIN;
+    private static double SMALLOFF = RADIUS_MAX - RADIUS_MIN - 0.5;
     private static int SIZE = 15;
 
     private static int[][] table = {
