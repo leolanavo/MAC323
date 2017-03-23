@@ -59,9 +59,11 @@ public class ST {
             freq[i] = freq[i + 1];
         }
         
-        i++;
-        words[i] = null;
-        freq[i] = 0;
+        if (i < length) {
+            i++;
+            words[i] = null;
+            freq[i] = 0;
+        }
 
         if ((i - 1) == length/4) resize(length/2);
 
@@ -74,8 +76,8 @@ public class ST {
             throw new java.lang.NullPointerException("ST.contains(): key is null");
         
         int i = findPos(key);
-    
-        if (i == length) return false;
+         
+        if (i == length || words[i] == null) return false;
         return true;
     }
 
@@ -121,10 +123,12 @@ public class ST {
             str.append(" , ");
         }
 
-        str.append("'");
-        str.append(words[i]); 
-        str.append("': ");
-        str.append(freq[i]);
+        if (words[i] != null) {
+            str.append("'");
+            str.append(words[i]); 
+            str.append("': ");
+            str.append(freq[i]);
+        }
         str.append("}");
 
         return str.toString();
