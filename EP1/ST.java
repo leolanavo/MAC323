@@ -4,9 +4,9 @@ import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.Stopwatch;
 
 public class ST {
-    int length;
-    int[] freq;
-    String[] words;
+    private int length;
+    private int[] freq;
+    private String[] words;
     
     // Create an empty symbol table
     public ST() {
@@ -63,7 +63,7 @@ public class ST {
         words[i] = null;
         freq[i] = 0;
 
-        if ((i - 1) == length/4) resize(length/4);
+        if ((i - 1) == length/4) resize(length/2);
 
     }
 
@@ -111,14 +111,23 @@ public class ST {
     // This string is used when we use StdOut.print*() to show the table
     public String toString() {
         int i;
-        String str = "{";
+        StringBuilder str = new StringBuilder("{");
 
-        for (i = 0; i < length - 1 && words[i + 1] != null; i++)
-            str += "'" + words[i] + "': " + freq[i] + " , ";
+        for (i = 0; i < length - 1 && words[i + 1] != null; i++) {
+            str.append("'");
+            str.append(words[i]);
+            str.append("': ");
+            str.append(freq[i]);
+            str.append(" , ");
+        }
 
-        str += "'" + words[i] + "': " + freq[i] + "}";
+        str.append("'");
+        str.append(words[i]); 
+        str.append("': ");
+        str.append(freq[i]);
+        str.append("}");
 
-        return str;
+        return str.toString();
     }
 
 
@@ -131,7 +140,7 @@ public class ST {
             tmpstr[i] = words[i];
             tmpint[i] = freq[i];
         }
-        
+        length = k;
         words = tmpstr;
         freq = tmpint;
     }
@@ -154,10 +163,7 @@ public class ST {
         String s;
         
         In in = new In(args[0]);
-        ST st1 = new ST();
         ST st2 = new ST();
-
-        Stopwatch sw = new Stopwatch();
         
         while (!in.isEmpty()) {
             String linha = in.readLine();
@@ -181,14 +187,14 @@ public class ST {
                 StdOut.println("'" + st2.max() + "'");
 
             else if (s.equals(KEYS))
-                 for (String key: st2.words)
+                for (String key: st2.words)
                     StdOut.println(key);
 
             else {
                 StdOut.println(st2.get(s));
             }
             StdOut.print(PROMPT);
-         }
+        }
     }
 }
 
