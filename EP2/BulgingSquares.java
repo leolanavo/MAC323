@@ -1,16 +1,3 @@
-/******************************************************************************
- *  Compilation:  javac BulgingSquares.java
- *  Execution:    java BulgingSquares
- *  Dependencies: StdDraw.java, java.awt.Color
- *
- *  Program draws an optical illusion from Akiyoshi Kitaoka. The center appears 
- *  to bulge outwards even though all squares are the same size. 
- *
- *  meu_prompt > java BulgingSquares
- *
- *  Exercise 14 http://introcs.cs.princeton.edu/java/15inout/
- * 
- ******************************************************************************/
 import edu.princeton.cs.algs4.StdDraw;
 
 public class BulgingSquares {
@@ -36,7 +23,7 @@ public class BulgingSquares {
     
     // Recieves the center, the radius and a boolean that represents its
     // of a big square
-    public static void plotIlusionQuarters(double x, double y, boolean color) {
+    public static void plotIlusion(double x, double y, boolean color) {
         double r = Math.sqrt(x*x + y*y);
         
         if (r <= RADIUS_ILUSION) {
@@ -87,7 +74,7 @@ public class BulgingSquares {
             
             for (int j = 0; j < SIZE; j++, color = !color) {
                 plotSquare(j*10 + BIGOFF, i*10 + BIGOFF, RADIUS_MAX, color);
-                plotIlusionQuarters(j*10 + BIGOFF, i*10 + BIGOFF, color);
+                plotIlusion(j*10 + BIGOFF, i*10 + BIGOFF, color);
             }
         }
         
@@ -95,4 +82,4 @@ public class BulgingSquares {
         StdDraw.show();
     }
 
-} 
+}
