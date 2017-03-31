@@ -27,7 +27,7 @@ public class LinkedListST<Key extends Comparable<Key>, Value> {
     }
     
     public LinkedListST() {
-        head = new Node();
+        head = null;
         size = 0;
     }   
 
@@ -44,18 +44,18 @@ public class LinkedListST<Key extends Comparable<Key>, Value> {
     }
 
     public boolean isEmpty() {
-        return (!(head != null));
+        return (size == 0);
     }
 
     public Value get(Key key) {
         if (key == null) throw new IllegalArgumentException("argument to get() is null");
         
         Node tmp = head;
-        while (tmp.next != null && tmp.key.compareTo(key) < 0) 
+        while (tmp != null && tmp.key.compareTo(key) < 0) 
             tmp = tmp.next;
 
-        if (tmp.key.compareTo(key) == 0) return tmp.value;
-        else return null;
+        if (tmp != null && tmp.key.compareTo(key) == 0) return tmp.value;
+        return null;
     } 
     
     public int rank(Key key) {
@@ -84,12 +84,14 @@ public class LinkedListST<Key extends Comparable<Key>, Value> {
         
 		Node tmp = head;
         Node prev = null;
-
-		while (tmp != null && tmp.key != null&& tmp.key.compareTo(key) < 0) {
+        
+        StdOut.println("hello");
+		while (tmp != null && tmp.key.compareTo(key) < 0) {
             prev = tmp;
             tmp = tmp.next;
         }
-        
+       
+        size++;
 		if (prev == null) {
             new_entry.next = head;
             head = new_entry;
@@ -97,8 +99,10 @@ public class LinkedListST<Key extends Comparable<Key>, Value> {
         else if (tmp == null)
             prev.next = new_entry;
 
-        else if (tmp.key != null && tmp.key.compareTo(key) == 0)
+        else if (tmp.key != null && tmp.key.compareTo(key) == 0) {
             tmp.value = val;
+            size--;
+        }
         
         else {
             prev.next = new_entry;
@@ -117,18 +121,23 @@ public class LinkedListST<Key extends Comparable<Key>, Value> {
             prev = tmp;
             tmp = tmp.next;
         }
-
+        
+        size--;
         if (tmp.key.compareTo(key) == 0 && prev != null) {
             prev.next = tmp.next;
             tmp.key = null;
             tmp.value = null;
+            tmp = null;
         }
 
         else if (prev == null) {
             tmp.key = null;
             tmp.value = null;
+            tmp = null;
             head = head.next;
         }
+        else
+            size++;
 
         return;
 
@@ -147,7 +156,7 @@ public class LinkedListST<Key extends Comparable<Key>, Value> {
         Node tmp = head;
         Node prev = null;
 
-        while (tmp.next != null) {
+        while (tmp != null) {
             prev = tmp;
             tmp = tmp.next;
         }
@@ -156,6 +165,8 @@ public class LinkedListST<Key extends Comparable<Key>, Value> {
             prev.next = null;
         tmp.key = null;
         tmp.value = null;
+        tmp = null;
+        size--;
     }
 
 
@@ -256,16 +267,21 @@ public class LinkedListST<Key extends Comparable<Key>, Value> {
         }
         
         private class KeysIterator implements Iterator<Key> {
-            Node current = head;
+            Node current;
             Key key;
-            
+           
+            public KeysIterator() {
+                current = new Node();
+                current.next = head;
+            }
+
             public boolean hasNext() {
-                return (current.next != null);
+                return (current != null && current.next != null);
             }
 
             public Key next() {
-                key = current.key;
                 current = current.next;
+                key = current.key;
                 return key;
             }
                     
@@ -282,7 +298,7 @@ public class LinkedListST<Key extends Comparable<Key>, Value> {
     
     // are the items in the linked list in ascending order?
     private boolean isSorted() {
-        if (head == null || head == null) return true;
+        if (head == null) return true;
         Node tmp = head;
         while (tmp != null) {
             if (tmp.key.compareTo(tmp.next.key) >= 0) return false;
@@ -304,9 +320,9 @@ public class LinkedListST<Key extends Comparable<Key>, Value> {
             String key = StdIn.readString();
             st.put(key, i);
         }
-        StdOut.println("hello");
         for (String s : st.keys())
             StdOut.println(s + " " + st.get(s));
+        StdOut.println(st.get("ahoihgoihas"));
     }
 }
 
