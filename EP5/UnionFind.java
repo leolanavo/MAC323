@@ -1,5 +1,5 @@
 public class UnionFind {
-    private int count;
+   private int count;
     private int n;
     private int[] parent;
     private int[] size;
@@ -7,8 +7,8 @@ public class UnionFind {
     public UnionFind (int n) {
         this.n = n;
         count = n*n;
-        parent = new int[n*n];
-        size = new int[n*n];
+        parent = new int[count];
+        size = new int[count];
         for (int i = 0; i < count; i++) {
             parent[i] = i;
             size[i] = 1;
