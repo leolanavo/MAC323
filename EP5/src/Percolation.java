@@ -60,7 +60,11 @@ public class Percolation {
     // does the system percolate?
     public boolean percolates() {
         if (numberOfOpenSites() < dim) return false;
-        return UF.connected(0, -1, dim-1, dim, true);
+        for (int i = 0; i < dim; i++) {
+            if(UF.connected(0, -1, dim-1, i, false))
+                return true;
+        }
+        return false;
     }
     
     // unit testing (required)

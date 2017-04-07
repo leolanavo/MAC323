@@ -66,17 +66,27 @@ public class UnionFind {
     public void union (int row1, int col1, int row2, int col2) {
         int rootP = find2(n*row1 + col1 + 1);
         int rootQ = find2(n*row2 + col2 + 1);
+        int rootP2 = find2(n*row1 + col1 + 1);
+        int rootQ2 = find2(n*row2 + col2 + 1);
 
-        if (rootP == rootQ) return;
-        
-        if (size2[rootP] < size2[rootQ] && rootP != 0) {
-            parent2[rootP] = rootQ;
-            size2[rootQ] += size2[rootP];
+        if (size2[rootP2] < size2[rootQ2] && rootP2 != 0) {
+            parent2[rootP2] = rootQ2;
+            size2[rootQ2] += size2[rootP2];
         }
 
-        else {
-            parent2[rootQ] = rootP;
-            size2[rootP] += size2[rootQ];
+        else if (rootP2 != rootQ2) {
+            parent2[rootQ2] = rootP2;
+            size2[rootP2] += size2[rootQ2];
+        }
+        
+        if (size[rootP] < size[rootQ] && rootP != 0) {
+            parent[rootP] = rootQ;
+            size[rootQ] += size[rootP];
+        }
+
+        else if (rootP != rootQ) {
+            parent[rootQ] = rootP;
+            size[rootP] += size[rootQ];
         }
     }
 }
