@@ -4,12 +4,15 @@ public class Percolation {
     private int open_count;
     private final int dim;
     private UnionFind UF;
+    private UnionFind UF_color;
 
 	// Create n-by-n grid, with all sites initially blocked
 	public Percolation(int n) {
         dim = n;
         open_count = 0;
-        UF = new UnionFind(n);
+        boolean color = false;
+        UF = new UnionFind(n, false);
+        UF_color = new UnionFind(n, true);
         grid = new int[n][n];
         
         for (int i = 0; i < n; i++)
@@ -25,17 +28,25 @@ public class Percolation {
         grid[row][col] = 0;
         open_count++;
         
-        if (isOpen(row - 1, col))
+        if (isOpen(row - 1, col)) {
             UF.union(row - 1, col, row, col);
+            UF_color.union(row - 1, col, row, col);
+        }
 
-        if (isOpen(row, col + 1))
+        if (isOpen(row, col + 1)) {
             UF.union(row, col + 1, row, col);
-        
-        if (isOpen(row, col - 1))
+            UF_color.union(row, col + 1, row, col);
+        }
+
+        if (isOpen(row, col - 1)) {
             UF.union(row, col - 1, row, col);
-        
-        if (isOpen(row + 1, col))
+            UF_color.union(row, col - 1, row, col);
+        }
+
+        if (isOpen(row + 1, col)) {
             UF.union(row, col, row + 1, col);
+            UF_color.union(row, col, row + 1, col);
+        }
 
         return; 
     }
@@ -49,7 +60,7 @@ public class Percolation {
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
         if (row < 0 || row >= dim || col < 0 || col >= dim) return false;
-        return isOpen(row, col) && UF.connected(0, -1, row, col, false);
+        return isOpen(row, col) && UF_color.connected(0, -1, row, col);
     } 
 	
     // number of open sites
@@ -61,7 +72,7 @@ public class Percolation {
     public boolean percolates() {
         if (numberOfOpenSites() < dim) return false;
         for (int i = 0; i < dim; i++) {
-            if(UF.connected(0, -1, dim-1, i, false))
+            if(UF.connected(0, -1, dim-1, i))
                 return true;
         }
         return false;
