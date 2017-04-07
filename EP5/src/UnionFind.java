@@ -3,34 +3,31 @@ public class UnionFind {
     private int n;
     public int[] parent;
     private int[] size;
-    public int[] parent2;
-    private int[] size2;
     
-    public UnionFind (int n) {
+    public UnionFind (int n, boolean color) {
         this.n = n;
         count = n*n;
         
         parent = new int[count + 2];
         size = new int[count + 2];
         
-        parent2 = new int[count + 2];
-        size2 = new int[count + 2];
-
         for (int i = 0; i < count + 2; i++) {
             parent[i] = i;
             size[i] = 1;
-            parent2[i] = i;
-            size2[i] = 1;
         }
        
-        size2[0] = n;
         size[0] = n;
-        size[count + 1] = n;
+        if (!color) size[count + 1] = n;
         
-        for(int i = 1; i <= n; i++) {
-            parent[i] = 0;
-            parent2[i] = 0;
-            parent[count - i + 1] = count + 1;
+        if (color)
+            for(int i = 1; i <= n; i++)
+                parent[i] = 0;
+        
+        else {
+            for(int i = 1; i <= n; i++) {
+                parent[i] = 0;
+                parent[count - i + 1] = count + 1;
+            }
         }
     }
     
@@ -46,39 +43,14 @@ public class UnionFind {
         return root;
     }
     
-    public int find2 (int p) {
-        int root = p;
-        while (root != parent2[root])
-            root = parent2[root];
-        while (p != root) {
-            int newp = parent2[p];
-            parent2[p] = root;
-            p = newp;
-        }
-        return root;
-    }
-    
-    public boolean connected (int row1, int col1, int row2, int col2, boolean full) {
-        if (full) return find(n*row1 + col1 + 1) == find(n*row2 + col2 + 1);
-        return find2(n*row1 + col1 + 1) == find2(n*row2 + col2 + 1);
+    public boolean connected (int row1, int col1, int row2, int col2) {
+        return find(n*row1 + col1 + 1) == find(n*row2 + col2 + 1);
     }
 
     public void union (int row1, int col1, int row2, int col2) {
-        int rootP = find2(n*row1 + col1 + 1);
-        int rootQ = find2(n*row2 + col2 + 1);
-        int rootP2 = find2(n*row1 + col1 + 1);
-        int rootQ2 = find2(n*row2 + col2 + 1);
+        int rootP = find(n*row1 + col1 + 1);
+        int rootQ = find(n*row2 + col2 + 1);
 
-        if (size2[rootP2] < size2[rootQ2] && rootP2 != 0) {
-            parent2[rootP2] = rootQ2;
-            size2[rootQ2] += size2[rootP2];
-        }
-
-        else if (rootP2 != rootQ2) {
-            parent2[rootQ2] = rootP2;
-            size2[rootP2] += size2[rootQ2];
-        }
-        
         if (size[rootP] < size[rootQ] && rootP != 0) {
             parent[rootP] = rootQ;
             size[rootQ] += size[rootP];
