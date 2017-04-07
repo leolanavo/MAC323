@@ -49,7 +49,7 @@ public class Percolation {
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
         if (row < 0 || row >= dim || col < 0 || col >= dim) return false;
-        return isOpen(row, col) && UF.connected(0, -1, row, col);
+        return isOpen(row, col) && UF.connected(0, -1, row, col, false);
     } 
 	
     // number of open sites
@@ -60,7 +60,7 @@ public class Percolation {
     // does the system percolate?
     public boolean percolates() {
         if (numberOfOpenSites() < dim) return false;
-        return UF.connected(0, -1, dim-1, dim);
+        return UF.connected(0, -1, dim-1, dim, true);
     }
     
     // unit testing (required)
