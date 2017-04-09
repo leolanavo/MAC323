@@ -1,3 +1,8 @@
+import edu.princeton.cs.algs4.StdRandom;
+import edu.princeton.cs.algs4.StdStats;
+import edu.princeton.cs.algs4.WeightedQuickUnionUF;
+
+
 public class Percolation {
 
     private int[][] grid;
@@ -8,6 +13,8 @@ public class Percolation {
 
 	// Create n-by-n grid, with all sites initially blocked
 	public Percolation(int n) {
+        if (n <= 0) 
+            throw new java.lang.IllegalArgumentException();
         dim = n;
         open_count = 0;
         boolean color = false;
