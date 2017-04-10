@@ -38,29 +38,29 @@ public class Percolation {
     // open the site (row, col) if it is not open already
 	public void open(int row, int col) {
         if (row < 0 || row >= dim || col < 0 || col >= dim)
-            throw new java.lang.IllegalArgumentException();
+            throw new java.lang.IndexOutOfBoundsException();
                                                              
         int comp = dim*row + col + 1;
         if (grid[row][col] != -1) return;
         grid[row][col] = 0;
         open_count++;
-        
-        if (isOpen(row - 1, col)) {
+       
+        if (row - 1 >= 0 && isOpen(row - 1, col)) {
             UF.union(dim*(row - 1) + col + 1, comp);
             UF_color.union(dim*(row - 1) + col + 1, comp);
         }
 
-        if (isOpen(row, col + 1)) {
+        if (col + 1 < dim && isOpen(row, col + 1)) {
             UF.union(dim*row + col + 2, comp);
             UF_color.union(dim*row + col + 2, comp);
         }
 
-        if (isOpen(row, col - 1)) {
+        if (col - 1 >= 0 && isOpen(row, col - 1)) {
             UF.union(dim*row + col, comp);
             UF_color.union(dim*row + col, comp);
         }
 
-        if (isOpen(row + 1, col)) {
+        if (row + 1 < dim && isOpen(row + 1, col)) {
             UF.union(comp, dim*(row + 1) + col + 1);
             UF_color.union(comp, dim*(row + 1) + col + 1);
         }
@@ -70,7 +70,8 @@ public class Percolation {
     
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
-        if (row < 0 || row >= dim || col < 0 || col >= dim) return false;
+        if (row < 0 || row >= dim || col < 0 || col >= dim) 
+            throw new java.lang.IllegalArgumentException();
         return grid[row][col] >= 0;
     } 
 	
