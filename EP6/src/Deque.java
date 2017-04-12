@@ -5,8 +5,8 @@ import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
   
-    int size;
-    Node head;
+    private int size;
+    private Node head;
 
     private class Node {
         public Item item;
@@ -48,12 +48,7 @@ public class Deque<Item> implements Iterable<Item> {
         if (head != null) entry.next = head;
         head = entry;
         
-        Node x = head;
         size++;
-        for (int i = 0; i < size; i++) {
-            StdOut.println(x.item);
-            x = x.next;
-        }
         
     }          
     
@@ -74,12 +69,7 @@ public class Deque<Item> implements Iterable<Item> {
         if (tmp == null) head = entry;
         else tmp.next = entry;
         
-        Node x = head;
         size++;
-        for (int i = 0; i < size; i++) {
-            StdOut.println(x.item);
-            x = x.next;
-        }
     }           
     
     // remove and return the item from the front
@@ -117,7 +107,7 @@ public class Deque<Item> implements Iterable<Item> {
         size--;
 
         return entry;
-    }                 
+    }
     
     // return an iterator over items in order from front to end
     public Iterator<Item> iterator() {
@@ -155,36 +145,41 @@ public class Deque<Item> implements Iterable<Item> {
     public static void main(String[] args) {
         Deque<String> dq = new Deque<String>();
         String comando, palavra;
+        
+        String PROMPT = ">>> ";
+        StdOut.print(PROMPT);
+        
         while (!StdIn.isEmpty()) {
             comando = StdIn.readString();
      
 	        switch (comando) {
-	            case "isEmpty":
+	            case "empty":
 	                StdOut.println(dq.isEmpty());
 	                break;
 	            case "size":
 	                StdOut.println(dq.size());
 	                break;
-	            case "addFirst":
+	            case "first":
 	                palavra = StdIn.readString();
 	                dq.addFirst(palavra);
 	                break;
-	            case "addLast":
+	            case "last":
 	                palavra = StdIn.readString();
 	                dq.addLast(palavra);
 	                break;
-	            case "removeFirst":
+	            case "rf":
 	                StdOut.println(dq.removeFirst());
 	                break;
-	            case "removeLast":
+	            case "rl":
 	                StdOut.println(dq.removeLast());
 	                break;
-	            case "iterator":
+	            case "show":
 	                Iterator<String> ite = dq.iterator();
 	                while(ite.hasNext())
 	                    StdOut.println(ite.next());
 	                break;
             }
+            StdOut.print(PROMPT);
         }
     }
 }   
