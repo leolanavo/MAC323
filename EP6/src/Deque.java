@@ -146,41 +146,52 @@ public class Deque<Item> implements Iterable<Item> {
         Deque<String> dq = new Deque<String>();
         String comando, palavra;
         
-        String PROMPT = ">>> ";
-        StdOut.print(PROMPT);
-        
-        while (!StdIn.isEmpty()) {
-            comando = StdIn.readString();
-     
-	        switch (comando) {
-	            case "empty":
-	                StdOut.println(dq.isEmpty());
-	                break;
-	            case "size":
-	                StdOut.println(dq.size());
-	                break;
-	            case "first":
-	                palavra = StdIn.readString();
-	                dq.addFirst(palavra);
-	                break;
-	            case "last":
-	                palavra = StdIn.readString();
-	                dq.addLast(palavra);
-	                break;
-	            case "rf":
-	                StdOut.println(dq.removeFirst());
-	                break;
-	            case "rl":
-	                StdOut.println(dq.removeLast());
-	                break;
-	            case "show":
-	                Iterator<String> ite = dq.iterator();
-	                while(ite.hasNext())
-	                    StdOut.println(ite.next());
-	                break;
-            }
-            StdOut.print(PROMPT);
+        dq.addLast(" estudar");
+        dq.addLast(" MAC0323");
+        dq.addFirst(" adoro");
+        dq.addFirst("eu");
+
+        String result = "";
+        for(String s : dq) {
+            result = result.concat(s);
         }
+        StdOut.println(result);
+
+
+        //String PROMPT = ">>> ";
+        //StdOut.print(PROMPT);
+        
+        //while (!StdIn.isEmpty()) {
+            //comando = StdIn.readString();
+     
+			//switch (comando) {
+				//case "empty":
+					//StdOut.println(dq.isEmpty());
+					//break;
+				//case "size":
+					//StdOut.println(dq.size());
+					//break;
+				//case "first":
+					//palavra = StdIn.readString();
+					//dq.addFirst(palavra);
+					//break;
+				//case "last":
+					//palavra = StdIn.readString();
+					//dq.addLast(palavra);
+					//break;
+				//case "rf":
+					//StdOut.println(dq.removeFirst());
+					//break;
+				//case "rl":
+					//StdOut.println(dq.removeLast());
+					//break;
+				//case "show":
+					//for(String s: dq)
+                        //StdOut.println(s);
+					//break;
+            //}
+            //StdOut.print(PROMPT);
+        //}
     }
 }   
 
