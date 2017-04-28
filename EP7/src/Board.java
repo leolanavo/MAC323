@@ -1,8 +1,9 @@
 import java.util.Iterator;
+import java.lang.StringBuilder;
 import java.util.LinkedList;
 import edu.princeton.cs.algs4.StdOut;
 
-public class Board {
+public class Board implements Comparable<Board>{
     public int moves;
     private final int size;
     private int hamming;
@@ -10,20 +11,20 @@ public class Board {
     private int[][] board;
     public Board previous;
 
-
     // construct a board from an N-by-N array of tiles
     // (where tiles[i][j] = tile at row i, column j)
     public Board(int[][] tiles) {
         board = tiles;
         size = tiles.length;
-        int length = tiles.length*tiles.length + 1;
         hamming = 0;
         manhattan = 0;
     }
 
     // return tile at row i, column j (or 0 if blank)
     public int tileAt(int i, int j) {
-        return board[i][j];
+        if (i >= 0 && j >= 0 && i < size && j < size)
+            return board[i][j];
+        return -1;
     }       
     
     // board size N
@@ -31,7 +32,7 @@ public class Board {
         return size;
     }
     
-    // number of tiles out of place
+    // Return the hamming priority of the current board.
     public int hamming() {
         int index, diff;
         
@@ -45,7 +46,7 @@ public class Board {
         }
         
         else {
-            hamming--;
+            hamming = previous.hamming - 1;
             index = gotMoved();
             int row = (index - 1)/size;
             int col = (index - 1)%size;
@@ -56,7 +57,7 @@ public class Board {
         return hamming;
     }                   
     
-    // sum of Manhattan distances between tiles and goal
+    // Return the manhattan priority of the current board.
     public int manhattan() {
         int index, diffRow, diffCol, value;
         
@@ -73,17 +74,18 @@ public class Board {
             }
         }
         else {
+            manhattan = previous.manhattan;
             index = gotMoved();
 
-            //adicionar a subtração do anterior
-            
             int row = (index - 1)/size;
             int col = (index - 1)%size;
             
-            value = tileAt(row, col);
-            
-            diffRow = Math.abs((value - 1)/size - row);
-            diffCol = Math.abs((value - 1)%size - col);
+            int valueCurr = tileAt(row, col);
+            int valuePrev = searchPrev(row, col, valueCurr);
+            manhattan -= valuePrev;
+
+            diffRow = Math.abs((valueCurr - 1)/size - row);
+            diffCol = Math.abs((valueCurr - 1)%size - col);
             
             manhattan += (diffRow + diffCol);
         }
@@ -96,7 +98,8 @@ public class Board {
         for (int row = 0; row < size; row++)
             for (int col = 0; col < size; col++)
                 if (idealValue(row, col) != tileAt(row, col))
-                    return false;
+                    if (tileAt(row, col) != 0)
+                        return false;
         return true;
     }                
     
@@ -112,7 +115,7 @@ public class Board {
                 currPos = tileAt(row, col);
                 idealPos = idealValue(row, col);
                 
-                if (tileAt(row, col) == 0)
+                if (currPos == 0)
                     blankRow = row;
                 else if (row < col && currPos != idealPos)
                     inversions += Math.abs((currPos - idealPos));
@@ -140,7 +143,7 @@ public class Board {
         return true;
     }
 
-    // What position was moved in the previou round.
+    // Return the position that was moved in the previous round.
     private int gotMoved () {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
@@ -152,29 +155,94 @@ public class Board {
         }
         return 0;
     }
-
-    // Return the ideal value that should be in that position
-    private int idealValue(int row, int col) {
-        return size*row + col + 1;
-    }
     
-    // all neighboring boards
+    // Return an iterable with all the posible movements
+    // according to the current board.
     public Iterable<Board> neighbors() {
         return neighborsListing();
     }
+    
+    // string representation of this board (in the output format specified below)
+    public String toString() {
+        StringBuilder str = new StringBuilder((size + 1)*size);
+        for (int row = 0; row < size; row++) {
+            if (row != 0) str.append("\n");
+            for (int col = 0; col < size; col++)
+                str.append(tileAt(row, col) + " ");
+        }
 
+        str.append("\n");
+
+        return str.toString();
+    }               
+
+    public int compareTo(Board x) {
+        return (this.manhattan + this.moves) - (x.manhattan + x.moves);
+    }
+
+    // Return the ideal value that should be in that coordenate
+    private int idealValue(int row, int col) {
+        return size*row + col + 1;
+    }
+
+    // Receives the coordinates to where the search will be
+    // centered and the value of the tile that it needs to find.
+    // Return the manhattan priority on the previous board 
+    // of the piece corresponding to the given value.
+    private int searchPrev(int row, int col, int value) {
+        int diffRow, diffCol;
+
+        if (row - 1 >= 0)
+            if (previous.tileAt(row - 1, col) == value) {
+                row--;
+                diffRow = Math.abs((value - 1)/size - row);
+                diffCol = Math.abs((value - 1)%size - col);
+                return diffRow + diffCol;
+            }
+        
+        else if (row + 1 < size)
+            if (previous.tileAt(row + 1, col) == value) {
+                row++;
+                diffRow = Math.abs((value - 1)/size - row);
+                diffCol = Math.abs((value - 1)%size - col);
+                return diffRow + diffCol;
+            }
+        
+        else if (col - 1 >= 0)
+            if (previous.tileAt(row, col - 1) == value) {
+                col--;
+                diffRow = Math.abs((value - 1)/size - row);
+                diffCol = Math.abs((value - 1)%size - col);
+                return diffRow + diffCol;
+            }
+        
+        else if (col + 1 < size)
+            if (previous.tileAt(row, col + 1) == value) {
+                col++;
+                diffRow = Math.abs((value - 1)/size - row);
+                diffCol = Math.abs((value - 1)%size - col);
+                return diffRow + diffCol;
+            }
+        return 0;
+    }
+    
+
+    // Return a linked list with all the movements possible
+    // from the current board.
     private LinkedList<Board> neighborsListing() {
         
         int row = 0, col = 0;
         LinkedList<Board> neighbors = new LinkedList<Board>();
         
-        for (row = 0; row < size; row++)
+        for (row = 0; row < size; row++) {
             for (col = 0; col < size; col++)
                 if (tileAt(row, col) == 0)
                     break;
-
-
-        if (row - 1 > 0) {
+            if (tileAt(row, col) == 0)
+                break;
+        }
+            
+        if (row - 1 >= 0) {
             Board tmp = new Board(move(row - 1, col, row, col));
             tmp.previous = this;
             tmp.moves = this.moves + 1;
@@ -192,7 +260,7 @@ public class Board {
             neighbors.add(tmp);
         }
 
-        if (col - 1 > 0) {
+        if (col - 1 >= 0) {
             Board tmp = new Board(move(row, col - 1, row, col));
             tmp.previous = this;
             tmp.moves = this.moves + 1;
@@ -213,6 +281,8 @@ public class Board {
         return neighbors;
     }
 
+    // Receives two coordinates.
+    // Returns the matrix with the two coordinates exchanged.
     private int[][] move(int row1, int col1, int row2, int col2) {
         int[][] moved = new int[size][size];
         
@@ -228,14 +298,6 @@ public class Board {
         return moved;
     }
     
-    // string representation of this board (in the output format specified below)
-    //public String toString() {}               
-    
     // unit testing
-    public static void main(String[] args) {
-        int[][] tiles = {{1,2,3},
-                         {4,5,6},
-                         {7,8,0}};
-        System.out.println(tiles.length);
-    }
+    public static void main(String[] args) {}
 }
