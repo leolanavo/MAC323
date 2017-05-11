@@ -47,9 +47,8 @@ public class Deque<Item> implements Iterable<Item> {
         Node entry = new Node(item);
         if (head != null) entry.next = head;
         head = entry;
-        
+ 
         size++;
-        
     }          
     
     // add the item to the end
@@ -105,6 +104,7 @@ public class Deque<Item> implements Iterable<Item> {
         if (prev != null) prev.next = null;
         
         size--;
+        if (size == 0) head = null;
 
         return entry;
     }
