@@ -1,6 +1,6 @@
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
-import edu.princeton.cs.algs4.MinPQ;
+import edu.princeton.cs.algs4.MaxPQ;
 import java.util.LinkedList;
 import java.util.Comparator;
 
@@ -14,17 +14,20 @@ public class KdTreeST<Value> {
 
     private class Node<Value> {
         public Point2D coord;
-        public Node<Value> left;
-        public Node<Value> right;
         public Value val;
         public boolean direction;
+        public RectHV rect;
+        
+        public Node<Value> left;
+        public Node<Value> right;
         
         public Node() {
             coord = null;
             val = null;
+            rect = null;
             right = null;
             left = null;
-            direction = false;
+            direction = HORIZONTAL;
         }
         
         public Node(Point2D coord, Value val) {
@@ -32,7 +35,23 @@ public class KdTreeST<Value> {
             this.val = val;
             right = null;
             left = null;
-            direction = false;
+            direction = VERTICAL;
+            rect = null;
+        }
+    }
+    
+    private class priorityPoint implements Comparator<Point2D> {
+        
+        private Point2D para;
+
+        public priorityPoint(Point2D para) {
+            this.para = para;
+        }
+
+        public int compare (Point2D p, Point2D q) {
+            if (p.distanceSquaredTo(para) < q.distanceSquaredTo(para)) return -1;
+            if (p.distanceSquaredTo(para) == q.distanceSquaredTo(para)) return 0;
+            return 1;
         }
     }
 
@@ -61,8 +80,10 @@ public class KdTreeST<Value> {
     
         inserted = true;
         
-        if (this.isEmpty())
+        if (this.isEmpty()) {
             root = new Node<Value>(p, val);
+            root.rect = new RectHV(0, 0, 1, 1);
+        }
         else
             put(p, val, root);
         
@@ -99,10 +120,7 @@ public class KdTreeST<Value> {
 
         LinkedList<Point2D> list = new LinkedList<Point2D>();
         
-        for (Point2D x : points())
-            if (rect.contains(x))
-                list.add(x);
-
+        range(rect, root, list);
         return list;
     }
    
@@ -112,33 +130,23 @@ public class KdTreeST<Value> {
             throw new java.lang.NullPointerException("nearest: p is null");
 
         double dist = Double.MAX_VALUE;
-        Point2D y = new Point2D(0, 0);
-
-        for (Point2D x : points()) {
-            double tmp = p.distanceSquaredTo(x);
-            if (dist > tmp) {
-                dist = tmp;
-                y = x;
-            }
-        }
-        return y;
+        Point2D near = new Point2D(0, 0);
+        
+        near = nearest(p, root, dist, near);
+        
+        return near;
     }
 
     public Iterable<Point2D> nearest(Point2D p, int k) {  
         if (p == null)
             throw new java.lang.NullPointerException("nearest: p is null");
 
-        double dist = Double.MAX_VALUE;
-        Point2D y = new Point2D(0, 0);
-        MinPQ<Point2D> queue = new MinPQ<Point2D>();
+        Point2D near = new Point2D(0, 0);
+        MaxPQ<Point2D> queue = new MaxPQ<Point2D>(new priorityPoint(p));
+    
+        nearest(p, root, k, queue);
 
-        for (Point2D x : points()) {
-            double tmp = p.distanceSquaredTo(x);
-            if (dist > tmp) {
-                dist = tmp;
-                y = x;
-            }
-        }
+        return queue;
     }
 
     private void put(Point2D p, Value val, Node<Value> root) {
@@ -153,6 +161,13 @@ public class KdTreeST<Value> {
             if (root.right == null) {
                 root.right = new Node<Value>(p, val);
                 root.right.direction = !root.direction;
+                
+                if (root.direction == VERTICAL)
+                    root.right.rect = new RectHV(root.coord.x(), root.rect.ymin(), 
+                                                 root.rect.xmax(), root.rect.ymax());
+                else
+                    root.right.rect = new RectHV(root.rect.xmin(), root.coord.y(), 
+                                                 root.rect.xmax(), root.rect.ymax());
                 return;
             }
             else {
@@ -165,6 +180,13 @@ public class KdTreeST<Value> {
             if (root.left == null) {
                 root.left = new Node<Value>(p, val);
                 root.left.direction = !root.direction;
+                
+                if (root.direction == VERTICAL)
+                    root.left.rect = new RectHV(root.rect.xmin(), root.rect.ymin(), 
+                                                root.coord.x(), root.rect.ymax());
+                else
+                    root.left.rect = new RectHV(root.rect.xmin(), root.rect.ymin(),
+                                                root.rect.xmax(), root.coord.x());
                 return;
             }
             else { 
@@ -202,15 +224,61 @@ public class KdTreeST<Value> {
             return contains(p, root.left);
     }
 
-    private void points(LinkedList<Point2D> list, Node<Value> root) {
-        if (root == null) 
+    private void points(LinkedList<Point2D> list, Node<Value> tmp) {
+        if (tmp == null) return;
+        
+        if (tmp == root) list.add(tmp.coord);
+        if (tmp.left != null) list.add(tmp.left.coord);
+        if (tmp.right != null) list.add(tmp.right.coord);
+        
+        points(list, tmp.left);
+        points(list, tmp.right);
+        
+        return;
+    }
+
+    private void range(RectHV rect, Node<Value> root, LinkedList<Point2D> list) {
+        if (!root.rect.intersects(rect) || root == null)
             return;
-        else    
+        
+        if (rect.contains(root.coord))
             list.add(root.coord);
         
-        points(list, root.left);
-        points(list, root.right);
+        range(rect, root.right, list);
+        range(rect, root.left, list);
+    
+        return;
+    }
+    
+    private Point2D nearest(Point2D p, Node<Value> root, double dist, Point2D near) {
+        if (root == null || root.rect.distanceTo(p) > dist) 
+            return near;
         
+        if (root.coord.distanceTo(p) < dist) {
+            dist = root.coord.distanceTo(p);
+            near = root.coord;
+        }
+        
+        near = nearest(p, root.right, dist, near);
+        near = nearest(p, root.left, dist, near);
+
+        return near;
+    }
+
+    private void nearest(Point2D p, Node<Value> root, int k, MaxPQ<Point2D> queue) {
+
+        if (root == null || root.rect.distanceTo(p) > queue.max().distanceTo(p)) 
+            return;
+       
+        if (root.coord.distanceTo(p) < queue.max().distanceTo(p)) {
+            queue.insert(root.coord);
+            if (queue.size() > k)
+                queue.delMax();
+        }
+        
+        nearest(p, root.right, k, queue);
+        nearest(p, root.left, k, queue);
+
         return;
     }
 
