@@ -11,9 +11,11 @@ SRCD     := $(wildcard $(PWD)/*.java)
 JC       := javac -d
 MV		 := mv
 
+.PHONY: compile
+compile: $(CLASS)
 
-$(CLASS): $(SRC) $(CLASSDIR)
-	$(JC) $(CLASSDIR) $(SRC)
+$(CLASS): $(SRC)
+	$(JC) $(CLASSDIR) $<
 
 .PHONY: init
 init: $(SRCDIR) $(CLASSDIR)
