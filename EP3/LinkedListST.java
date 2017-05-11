@@ -85,7 +85,6 @@ public class LinkedListST<Key extends Comparable<Key>, Value> {
 		Node tmp = head;
         Node prev = null;
         
-        StdOut.println("hello");
 		while (tmp != null && tmp.key.compareTo(key) < 0) {
             prev = tmp;
             tmp = tmp.next;
