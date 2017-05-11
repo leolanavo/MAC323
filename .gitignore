@@ -2,7 +2,6 @@
 *.jar
 *.zip
 *.class
-*/Makefile
 EP5/CREDITS
 EP5/dados/
 EP5/imgs/
