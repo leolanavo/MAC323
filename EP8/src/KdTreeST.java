@@ -1,6 +1,7 @@
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.MaxPQ;
+import edu.princeton.cs.algs4.StdOut;
 import java.util.LinkedList;
 import java.util.Comparator;
 
@@ -88,6 +89,10 @@ public class KdTreeST<Value> {
             put(p, val, root);
         
         if (inserted) size++;
+
+        if (size == 10)
+            for (Point2D x: points())
+                StdOut.println(x);
     }
    
     // value associated with point p
@@ -130,7 +135,7 @@ public class KdTreeST<Value> {
             throw new java.lang.NullPointerException("nearest: p is null");
 
         double dist = Double.MAX_VALUE;
-        Point2D near = new Point2D(0, 0);
+        Point2D near = null;
         
         near = nearest(p, root, dist, near);
         
@@ -149,48 +154,48 @@ public class KdTreeST<Value> {
         return queue;
     }
 
-    private void put(Point2D p, Value val, Node<Value> root) {
+    private void put(Point2D p, Value val, Node<Value> query) {
         
-        if (root.coord.equals(p)) {
-            root.val = val;
+        if (query.coord.equals(p)) {
+            query.val = val;
             inserted = false;
             return;
         }
 
-        else if (root.direction ? root.coord.x() <= p.x() : root.coord.y() <= p.y()) {
-            if (root.right == null) {
-                root.right = new Node<Value>(p, val);
-                root.right.direction = !root.direction;
+        else if (query.direction ? query.coord.x() <= p.x() : query.coord.y() <= p.y()) {
+            if (query.right == null) {
+                query.right = new Node<Value>(p, val);
+                query.right.direction = !query.direction;
                 
-                if (root.direction == VERTICAL)
-                    root.right.rect = new RectHV(root.coord.x(), root.rect.ymin(), 
-                                                 root.rect.xmax(), root.rect.ymax());
+                if (query.direction == VERTICAL)
+                    query.right.rect = new RectHV(query.coord.x(), query.rect.ymin(), 
+                                                 query.rect.xmax(), query.rect.ymax());
                 else
-                    root.right.rect = new RectHV(root.rect.xmin(), root.coord.y(), 
-                                                 root.rect.xmax(), root.rect.ymax());
+                    query.right.rect = new RectHV(query.rect.xmin(), query.coord.y(), 
+                                                 query.rect.xmax(), query.rect.ymax());
                 return;
             }
             else {
-                put(p, val, root.right);
+                put(p, val, query.right);
                 return;
             }
         }
         
         else {
-            if (root.left == null) {
-                root.left = new Node<Value>(p, val);
-                root.left.direction = !root.direction;
+            if (query.left == null) {
+                query.left = new Node<Value>(p, val);
+                query.left.direction = !query.direction;
                 
-                if (root.direction == VERTICAL)
-                    root.left.rect = new RectHV(root.rect.xmin(), root.rect.ymin(), 
-                                                root.coord.x(), root.rect.ymax());
+                if (query.direction == VERTICAL)
+                    query.left.rect = new RectHV(query.rect.xmin(), query.rect.ymin(), 
+                                                query.coord.x(), query.rect.ymax());
                 else
-                    root.left.rect = new RectHV(root.rect.xmin(), root.rect.ymin(),
-                                                root.rect.xmax(), root.coord.x());
+                    query.left.rect = new RectHV(query.rect.xmin(), query.rect.ymin(),
+                                                query.rect.xmax(), query.coord.y());
                 return;
             }
             else { 
-                put(p, val, root.left);
+                put(p, val, query.left);
                 return;
             }
         }
@@ -238,7 +243,7 @@ public class KdTreeST<Value> {
     }
 
     private void range(RectHV rect, Node<Value> root, LinkedList<Point2D> list) {
-        if (!root.rect.intersects(rect) || root == null)
+        if (root == null || !root.rect.intersects(rect))
             return;
         
         if (rect.contains(root.coord))
@@ -251,18 +256,28 @@ public class KdTreeST<Value> {
     }
     
     private Point2D nearest(Point2D p, Node<Value> root, double dist, Point2D near) {
-        if (root == null || root.rect.distanceTo(p) > dist) 
+        if (root == null) 
             return near;
         
-        if (root.coord.distanceTo(p) < dist) {
-            dist = root.coord.distanceTo(p);
+        if (root.coord.distanceSquaredTo(p) < dist) {
+            dist = root.coord.distanceSquaredTo(p);
             near = root.coord;
         }
         
-        near = nearest(p, root.right, dist, near);
-        near = nearest(p, root.left, dist, near);
-
-        return near;
+        Point2D near_left = nearest(p, root.left, dist, near);
+        Point2D near_right = nearest(p, root.right, dist, near);
+        
+        if (near_left.distanceSquaredTo(p) < near_right.distanceSquaredTo(p))
+            if (near.distanceSquaredTo(p) < near_left.distanceSquaredTo(p))
+                return near;
+            else 
+                return near_left;
+        
+        else
+            if (near.distanceSquaredTo(p) < near_right.distanceSquaredTo(p))
+                return near;
+            else 
+                return near_right;
     }
 
     private void nearest(Point2D p, Node<Value> root, int k, MaxPQ<Point2D> queue) {
