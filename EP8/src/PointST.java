@@ -1,12 +1,28 @@
 import edu.princeton.cs.algs4.RedBlackBST;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.MaxPQ;
 import java.util.LinkedList;
+import java.util.Comparator;
 
 public class PointST<Value> {
 
     private RedBlackBST<Point2D, Value> flamengo;
-   
+  
+    private class priorityPoint implements Comparator<Point2D> {
+        private Point2D para;
+
+        public priorityPoint(Point2D para) {
+            this.para = para;
+        }
+
+        public int compare(Point2D p, Point2D q) {
+            if (p.distanceSquaredTo(para) < q.distanceSquaredTo(para)) return -1;
+            if (p.distanceSquaredTo(para) == q.distanceSquaredTo(para)) return 0;
+            return 1;
+        }
+    }
+
     // construct an empty symbol table of points 
     public PointST() {
         flamengo = new RedBlackBST<>();
@@ -82,8 +98,27 @@ public class PointST<Value> {
         }
 
         return y;
-    }             
-   
+    }
+
+    public Iterable<Point2D> nearest(Point2D p, int k) {
+        if (p == null)
+            throw new java.lang.NullPointerException("nearest: p is null");
+        
+        MaxPQ<Point2D> queue = new MaxPQ<>(new priorityPoint(p));
+
+        for (Point2D x: points()) {
+            if (queue.size() >= k && 
+                queue.max().distanceSquaredTo(p) >= p.distanceSquaredTo(x)) {
+                queue.insert(x);
+                queue.delMax();
+            }
+            else if (queue.size() < k)
+                queue.insert(x);
+        }
+
+        return queue;
+    }
+    
     // unit testing (required)
     public static void main(String[] args) {
     }                  

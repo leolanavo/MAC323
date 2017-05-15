@@ -42,7 +42,6 @@ public class KdTreeST<Value> {
     }
     
     private class priorityPoint implements Comparator<Point2D> {
-        
         private Point2D para;
 
         public priorityPoint(Point2D para) {
@@ -83,7 +82,8 @@ public class KdTreeST<Value> {
         
         if (this.isEmpty()) {
             root = new Node<Value>(p, val);
-            root.rect = new RectHV(0, 0, 1, 1);
+            root.rect = new RectHV(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 
+                                   Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
         }
         else
             put(p, val, root);
@@ -146,9 +146,8 @@ public class KdTreeST<Value> {
         if (p == null)
             throw new java.lang.NullPointerException("nearest: p is null");
 
-        Point2D near = new Point2D(0, 0);
         MaxPQ<Point2D> queue = new MaxPQ<Point2D>(new priorityPoint(p));
-    
+
         nearest(p, root, k, queue);
 
         return queue;
@@ -281,15 +280,17 @@ public class KdTreeST<Value> {
     }
 
     private void nearest(Point2D p, Node<Value> root, int k, MaxPQ<Point2D> queue) {
-
-        if (root == null || root.rect.distanceTo(p) > queue.max().distanceTo(p)) 
+        if (root == null || 
+            queue.max().distanceSquaredTo(p) < root.rect.distanceSquaredTo(p))  
             return;
        
-        if (root.coord.distanceTo(p) < queue.max().distanceTo(p)) {
+        if (queue.size() >= k && 
+            queue.max().distanceSquaredTo(p) >= root.coord.distanceSquaredTo(p)) {
             queue.insert(root.coord);
-            if (queue.size() > k)
-                queue.delMax();
+            queue.delMax();
         }
+        else if (queue.size() < k)
+            queue.insert(root.coord);
         
         nearest(p, root.right, k, queue);
         nearest(p, root.left, k, queue);
