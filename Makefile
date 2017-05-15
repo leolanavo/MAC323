@@ -1,21 +1,22 @@
-SRCDIR 	 := src
-CLASSDIR := class
-PWD      := $(shell pwd)
+SRCDIR 	  := src
+CLASSDIR  := class
+PWD       := $(shell pwd)
 
-SRC      := $(wildcard $(SRCDIR)/*.java)
-CLASS    := $(patsubst $(SRCDIR)/%.java, $(CLASSDIR)/%.class, $(SRC))
+SRC       := $(wildcard $(SRCDIR)/*.java)
+CLASS     := $(patsubst $(SRCDIR)/%.java, $(CLASSDIR)/%.class, $(SRC))
 
-CLASSD   := $(wildcard $(PWD)/*.class)
-SRCD     := $(wildcard $(PWD)/*.java)
+CLASSD    := $(wildcard $(PWD)/*.class)
+SRCD      := $(wildcard $(PWD)/*.java)
 
-JC       := javac -d
-MV		 := mv
+JC        := javac 
+MV		  := mv
+JCFLAGS   := -d $(CLASSDIR) -cp $(CLASSPATH)
 
 .PHONY: compile
 compile: $(CLASS)
 
 $(CLASS): $(SRC)
-	$(JC) $(CLASSDIR) $<
+	$(JC) $(JCFLAGS) $^
 
 .PHONY: init
 init: $(SRCDIR) $(CLASSDIR)
