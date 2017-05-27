@@ -280,17 +280,15 @@ public class KdTreeST<Value> {
     }
 
     private void nearest(Point2D p, Node<Value> root, int k, MaxPQ<Point2D> queue) {
-        if (root == null || 
-            queue.max().distanceSquaredTo(p) < root.rect.distanceSquaredTo(p))  
+        if (root == null)  
             return;
-       
-        if (queue.size() >= k && 
-            queue.max().distanceSquaredTo(p) >= root.coord.distanceSquaredTo(p)) {
+        if (queue.size() < k ||
+            queue.max().distanceSquaredTo(p) > root.coord.distanceSquaredTo(p))
             queue.insert(root.coord);
+
+        if (queue.size() > k) {
             queue.delMax();
         }
-        else if (queue.size() < k)
-            queue.insert(root.coord);
         
         nearest(p, root.right, k, queue);
         nearest(p, root.left, k, queue);
