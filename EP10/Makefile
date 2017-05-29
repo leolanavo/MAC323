@@ -12,10 +12,10 @@ JC        := javac
 MV		  := mv
 JCFLAGS   := -d $(CLASSDIR) -cp $(CLASSPATH)
 
-.PHONY: compile
+.PHONY: compile 
 compile: $(CLASS)
 
-$(CLASS): $(SRC)
+$(CLASS): $(SRC) | $(CLASSDIR)
 	$(JC) $(JCFLAGS) $^
 
 .PHONY: init
