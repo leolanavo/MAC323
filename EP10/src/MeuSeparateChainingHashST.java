@@ -22,7 +22,7 @@ public class MeuSeparateChainingHashST<Key, Value> {
     private int n; 
     private int m; 
     private SequentialSearchST<Key, Value>[] st;
-    private double load = (((double)n)/((double)m));
+    private double load;
     
     public MeuSeparateChainingHashST() {
         this(INIT_CAPACITY, ALFAINF_DEFAULT, ALFASUP_DEFAULT);
@@ -55,7 +55,7 @@ public class MeuSeparateChainingHashST<Key, Value> {
      * Pré-condição: o método supõe que alfaInf < alfaSup.
      */
     public MeuSeparateChainingHashST(int m, double alfaInf, double alfaSup) {
-        if (alfaInf > alfaSup || m > PRIMES[32])
+        if (alfaInf > alfaSup || m > PRIMES[PRIMES.length - 1])
             throw new java.lang.IllegalArgumentException();
         
         this.alfaInf = alfaInf;
@@ -65,13 +65,12 @@ public class MeuSeparateChainingHashST<Key, Value> {
         for (int i = 0; i < PRIMES.length && m > PRIMES[i]; i++)
             iPrimes = i;
 
-        this.m = PRIMES(iPrimes);
-
+        this.m = PRIMES[iPrimes];
+        
         st = (SequentialSearchST<Key, Value>[]) new SequentialSearchST[PRIMES[iPrimes]];
 
-        for (int i = 0; i < PRIMES[iPrimes]; i++)
+        for (int i = 0; i < this.m; i++)
             st[i] = new SequentialSearchST<>();
-
     } 
    
 
@@ -85,7 +84,7 @@ public class MeuSeparateChainingHashST<Key, Value> {
     private void resize(int k) {
         MeuSeparateChainingHashST<Key, Value> tmp = new MeuSeparateChainingHashST(PRIMES[k], alfaInf, alfaSup);
         
-        for (int i = 0; i < PRIMES[k]; i++)
+        for (int i = 0; i < this.m; i++)
             for (Key key: st[i].keys())
                 tmp.put(key, st[i].get(key));
 
@@ -125,15 +124,15 @@ public class MeuSeparateChainingHashST<Key, Value> {
     // insert key-value pair into the table
     public void put(Key key, Value val) {
         if (key == null)
-            throw new java.lang.IllegalArgument();
+            throw new java.lang.IllegalArgumentException();
 
         if (val == null) {
             delete(key);
             return;
         }
 
-        if (this.load > this.alfaSup)
-            resize(iPrimes++);
+        if (load() > this.alfaSup)
+            resize(++iPrimes);
         
         int i = hash(key);
         if (!st[i].contains(key)) n++;
@@ -143,13 +142,15 @@ public class MeuSeparateChainingHashST<Key, Value> {
     // delete key (and associated value) if key is in the table
     public void delete(Key key) {
         if (key == null)
-            throw new java.lang.IllegalArgument();
+            throw new java.lang.IllegalArgumentException();
         
         int i = hash(key);
-        if (!st[i].contains(key)) n--;
-        st[i].delete(key, val);
         
-        if (this.load < this.alfaInf && iPrimes >= 0)
+        if (!st[i].contains(key)) n--;
+        st[i].delete(key);
+        
+        
+        if (load() < this.alfaInf && iPrimes >= 0)
             resize(iPrimes--);
     } 
 
@@ -168,9 +169,15 @@ public class MeuSeparateChainingHashST<Key, Value> {
         return m;
     } 
 
-    // retorna o maior comprimeno de uma lista
+    // retorna o maior comprimento de uma lista
     public int maxLista() {
-        return 0;
+        int max = 0;
+        
+        for (SequentialSearchST list: st)
+            if (list.size() >= max)
+                max = list.size();
+             
+        return max;
     }
 
     /** Exercício 3.4.30 S&W
@@ -189,8 +196,14 @@ public class MeuSeparateChainingHashST<Key, Value> {
     public double chiSquare() {
         double sum = 0;
         for (int i = 0; i < m; i++) {
-            sum += (st[i].size() - load)^2;
+            double size = (double) st[i].size();
+            sum += (size - load())*(size - load());
         }
+        return (m/(double) n)*sum;
+    }
+
+    private double load() {
+        return this.n/(double) this.m;
     }
     
    /***********************************************************************
