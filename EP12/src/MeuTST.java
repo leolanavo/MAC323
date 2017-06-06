@@ -8,7 +8,7 @@ import java.util.Comparator;
 public class MeuTST<Value extends Comparable<Value>> {
     
     private int n;              // size
-    private Node<Value> root;   // root of TST
+    public Node<Value> root;   // root of TST
 
     private static class Node<Value> {
         private char c;                        // character
@@ -215,6 +215,9 @@ public class MeuTST<Value extends Comparable<Value>> {
      */
     // all keys starting with given prefix
     public Iterable<String> keysWithPrefixByValue(String prefix) {
+        if (prefix == null)
+            throw new java.lang.NullPointerException();
+        
         MaxPQ<String> queue = new MaxPQ<>();
         Node<Value> x = get(root, prefix, 0);
         if (x == null) return queue;
@@ -286,35 +289,35 @@ public class MeuTST<Value extends Comparable<Value>> {
      */
     public void delete(String key) {
         if (key == null) 
-            throw new java.lang.IllegalArgumentException();
+            throw new java.lang.NullPointerException();
+
+        if (!contains(key)) return;
+        n--;
+        root = delete(root, key, 0);
 
     }
 
-    private boolean delete (Node<Value> x, String key, int d) {
-        if (x == null) return false;
-
+    private Node<Value> delete (Node<Value> x, String key, int d) {
+        if (x == null) return x;
+        
         if (x.c == key.charAt(d)) {
-            boolean task;
             if (d == key.length() - 1 && points(x))
-                return true;
+                return null;
             else if (d == key.length() - 1) {
                 x.val = null;
-                return false;
+                return x;
             }
-            else if (delete (x.mid, key, d+1))
-                x.mid = null;
-                
-            if (points(x)) 
-                return true;
+            x.mid = delete (x.mid, key, d+1);
+            if (points(x)) return null;
         }
         
-        else if (x.c > key.charAt(d))
-            delete(x.right, key, d);
+        else if (x.c < key.charAt(d))
+            x.right = delete(x.right, key, d);
         
         else if (x.c > key.charAt(d))
-            delete(x.left, key, d);
+            x.left = delete(x.left, key, d);
         
-        return false;
+        return x;
     }
 
     private boolean points(Node<Value> x) {
@@ -329,7 +332,7 @@ public class MeuTST<Value extends Comparable<Value>> {
         }
  
         public int compare (String p,String q) {
-            return st.get(p).compareTo(st.get(q));
+            return st.get(q).compareTo(st.get(p));
         }
     }
 
@@ -340,34 +343,6 @@ public class MeuTST<Value extends Comparable<Value>> {
      * @param args the command-line arguments
      */
     public static void main(String[] args) {
-        // read in the terms from a file
-        String filename = args[0];
-        In in = new In(filename);
-        int n = in.readInt();
-        MeuTST<Long> terms = new MeuTST<Long>();
-        for (int i = 0; i < n; i++) {
-            long weight = in.readLong();  // read the next weight
-            in.readChar();                // scan past the tab
-            String query = in.readLine(); // read the next query
-            terms.put(query, weight);     // construct the term
-        }
-        
-        StdOut.println(terms.size() + " itens (= pares chave-valor) na TST");
-        StdOut.println("Teste interativo. Digite algo e tecle ENTER. Tecle crtl+d para encerrar,");
-        // read in queries from standard input and print out the matching terms
-        StdOut.print(">>> ");
-        while (StdIn.hasNextLine()) {
-            String prefix = StdIn.readLine();
-            Iterable<String> results = terms.keysWithPrefix(prefix);
-            StdOut.println("----------------------");
-            for (String key : results)
-                StdOut.println("   '" + key + "' : " + terms.get(key));
-            StdOut.println("----------------------");
-            Iterable<String> resultsValue = terms.keysWithPrefixByValue(prefix);
-            for (String key : resultsValue)
-                StdOut.println("   '" + key + "' : " + terms.get(key));
-            StdOut.print(">>> ");
-        }
 
         // teste delete()
         StdOut.println("\niniciando teste de delete()...");
@@ -386,31 +361,31 @@ public class MeuTST<Value extends Comparable<Value>> {
         StdOut.println(st.size() + " itens: ");
         for (String key : st.keys())
             StdOut.println("   '" + key + "' : " + st.get(key));
-        
+       
         st.delete("sea");
         StdOut.println("\n"+ st.size() + " itens depois de remover 'sea': ");
         for (String key : st.keys())
             StdOut.println("  '" + key + "' : " + st.get(key));
 
-        st.delete("sea");
-        StdOut.println("\n" + st.size() + " itens depois de remover 'sea' novamente: ");
-        for (String key : st.keys())
-            StdOut.println("   '" + key + "' : " + st.get(key));
+        // st.delete("sea");
+        // StdOut.println("\n" + st.size() + " itens depois de remover 'sea' novamente: ");
+        // for (String key : st.keys())
+            // StdOut.println("   '" + key + "' : " + st.get(key));
 
-        st.delete("are");
-        st.delete("the");
-        st.delete("by");
-        StdOut.println("\n" + st.size() + " itens depois de remover 'are', 'the', 'by': ");
-        for (String key : st.keys()) {
-            StdOut.println("   '" + key + "' : " + st.get(key));
-            st.delete(key);
-        }
+        // st.delete("are");
+        // st.delete("the");
+        // st.delete("by");
+        // StdOut.println("\n" + st.size() + " itens depois de remover 'are', 'the', 'by': ");
+        // for (String key : st.keys()) {
+            // StdOut.println("   '" + key + "' : " + st.get(key));
+            // st.delete(key);
+        // }
 
-        StdOut.println("\n" + st.size() + " itens depois de remover... tudo: ");
-        for (String key : st.keys()) {
-            StdOut.println("   '" + key + "' : " + st.get(key));
-        }
+        // StdOut.println("\n" + st.size() + " itens depois de remover... tudo: ");
+        // for (String key : st.keys()) {
+            // StdOut.println("   '" + key + "' : " + st.get(key));
+        // }
 
-        StdOut.println("fim dos testes.");
+        // StdOut.println("fim dos testes.");
     }
 }
