@@ -73,18 +73,8 @@ public class SeamCarver {
     public int[] findHorizontalSeam() {
         int[] path = new int[height()];
 
-        Node[][] matrix = createMatrix(false);
-        
-        for (int i = 1; i < width(); i++)
-            for (int j = 0; j < height() && i+1 < width(); j++)
-                    for (int k = -1; k < 2; k++)
-                        if (j+k < height() && j+k >= 0 &&
-                            matrix[j][i].dist + matrix[j+k][i+1].energy < matrix[j+k][i+1].dist) {
-                            
-                            matrix[j+k][i+1].dist = matrix[j][i].dist + matrix[j+k][i+1].energy;
-                            matrix[j+k][i+1].minFather = j;
-                        }
-        
+        Node[][] matrix = findSeam(false);
+
         double min = Double.POSITIVE_INFINITY;
         int y = 0;
         
@@ -106,18 +96,8 @@ public class SeamCarver {
     public int[] findVerticalSeam() {
         int[] path = new int[height()];
 
-        Node[][] matrix = createMatrix(true);
+        Node[][] matrix = findSeam(true);
 
-        for (int i = 1; i < height(); i++)
-            for (int j = 0; j < width() && i+1 < height(); j++)
-                    for (int k = -1; k < 2; k++)
-                        if (j+k < width() && j+k >= 0 &&
-                            matrix[i][j].dist + matrix[i+1][j+k].energy < matrix[i+1][j+k].dist) {
-                            
-                            matrix[i+1][j+k].dist = matrix[i][j].dist + matrix[i+1][j+k].energy;
-                            matrix[i+1][j+k].minFather = j;
-                        }
-        
         double min = Double.POSITIVE_INFINITY;
         int x = 0;
         
@@ -134,34 +114,7 @@ public class SeamCarver {
         return path;
     }
 
-    private Node[][] createMatrix(boolean vertical) {
-        Node[][] matrix = new Node[height()][width()];
 
-        for (int i = 0; i < height(); i++)
-            for (int j = 0; j < width(); j++)
-                matrix[i][j] = new Node(j, i);
-        
-        int firstLim = vertical ? width() : height();
-        int secondLim = vertical ? height() : width();
-
-        for (int i = 0; i < firstLim; i++) {
-            double energy = matrix[0][i].energy;
-            matrix[0][i].dist = energy;
-            if (1 < secondLim)
-                for (int j = -1; j < 2; j++) {
-                    int lin = vertical ? 1 : i+j;
-                    int col = vertical ? i+j : 1;
-                    
-                    if (i+j < firstLim && i+j >= 0 &&
-                        energy + matrix[lin][col].energy < matrix[lin][col].dist) {
-                        matrix[lin][col].dist = energy + matrix[lin][col].energy;
-                        matrix[lin][col].minFather = i;
-                    }
-                }
-        }
-
-        return matrix;
-    }
    
     // remove horizontal seam from current picture
     public void removeHorizontalSeam(int[] seam) {
@@ -170,6 +123,8 @@ public class SeamCarver {
 
         if (width() == 1)
             throw new java.lang.IllegalArgumentException();
+        
+        removeSeam(seam, false);
     }
    
     // remove vertical seam from current picture
@@ -179,9 +134,73 @@ public class SeamCarver {
         
         if (height() == 1)
             throw new java.lang.IllegalArgumentException();
-        
+
+        removeSeam(seam, true);
     }
-   
+
+    private void removeSeam(int[] seam, boolean vertical) {
+        
+        int firstLim = vertical ? height() : width();
+        int secondLim = vertical ? width() : height();
+
+        Picture tmp = vertical ? 
+                    new Picture(width() - 1, height()) : 
+                    new Picture(width(), height() - 1);
+        
+        for (int i = 0; i < firstLim; i++) {
+            for (int j = 0, offset = 0; j < secondLim - 1; j++) {
+                if (j == seam[i])
+                    offset = 1;
+                
+                int lin = vertical ? i : j; 
+                int col = vertical ? j : i;
+
+                int curLin = vertical ? i : j+offset;
+                int curCol = vertical ? j+offset : i;
+                
+                tmp.set(lin, col, pic.get(curLin, curCol));
+            }
+        }
+    }
+    
+    private Node[][] findSeam(boolean vertical) {
+        Node[][] matrix = new Node[height()][width()];
+
+        for (int i = 0; i < width(); i++)
+            for (int j = 0; j < height(); j++)
+                matrix[i][j] = new Node(i, j);
+
+        int firstLim = vertical ? height() : width();
+        int secondLim = vertical ? width() : height();
+
+        for (int i = 0; i < firstLim; i++) {
+            for (int j = 0; j < secondLim && i+1 < firstLim; j++) {
+                for (int k = -1; k < 2; k++) {
+                    
+                    int lin = vertical ? i+1 : j+k;
+                    int col = vertical ? j+k : i+1;
+                    
+                    if (i == 0)
+                        matrix[i][j].dist = matrix[i][j].energy;
+                    
+                    else if (j+k < secondLim && j+k >= 0) {
+                        
+                        double dist = matrix[i][j].dist;
+                        double energy = matrix[lin][col].energy;
+                        double nextDist = matrix[lin][col].dist;
+                        
+                        if (dist + energy < nextDist) {
+                            matrix[lin][col].dist = dist + energy;
+                            matrix[lin][col].minFather = j;
+                        }
+                    }
+                }
+            }
+        }
+
+        return matrix;
+    }
+
     // do unit testing of this class
     public static void main(String[] args) {}
 }
